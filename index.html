@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,64 +12,143 @@
             margin: 0;
             padding: 0;
         }
+
         .container {
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
         }
+
         h1 {
             text-align: center;
             color: #333;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
         }
-        th, td {
+
+        th,
+        td {
             padding: 10px;
             text-align: left;
             border-bottom: 1px solid #ddd;
         }
+
         th {
             background-color: #f2f2f2;
         }
+
         tr:nth-child(even) {
             background-color: #f9f9f9;
         }
+
         tr:hover {
             background-color: #f2f2f2;
         }
+
+        #add-rank-section {
+            display: none;
+            margin-top: 20px;
+            border: 1px solid #ccc;
+            padding: 20px;
+            background-color: #fff;
+        }
+
+        input[type="text"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
     </style>
 </head>
+
 <body>
 
-<div class="container">
-    <h1>Montana Highway Patrol Roster</h1>
+    <div class="container">
+        <h1>Montana Highway Patrol Roster</h1>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Rank</th>
-                <th>Badge Number</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>John Smith</td>
-                <td>Trooper</td>
-                <td>12345</td>
-            </tr>
-            <tr>
-                <td>Jane Doe</td>
-                <td>Sergeant</td>
-                <td>54321</td>
-            </tr>
-            <!-- Add more rows as needed -->
-        </tbody>
-    </table>
-</div>
+        <table id="roster-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Rank</th>
+                    <th>Badge Number</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Table rows will be dynamically added here -->
+            </tbody>
+        </table>
+
+        <div id="add-rank-section" style="display: none;">
+            <h2>Add Rank</h2>
+            <input type="text" id="name-input" placeholder="Name"><br><br>
+            <input type="text" id="rank-input" placeholder="Rank"><br><br>
+            <input type="text" id="badge-input" placeholder="Badge Number"><br><br>
+            <button onclick="addRank()">Add Rank</button>
+        </div>
+    </div>
+
+    <script>
+        // Define your authentication password
+        const password = "your_password";
+
+        // Function to authenticate user
+        function authenticate() {
+            const authenticated = prompt("Enter password to add ranks:") === password;
+            if (authenticated) {
+                // Show the add rank section
+                document.getElementById("add-rank-section").style.display = "block";
+            } else {
+                // Hide the add rank section
+                document.getElementById("add-rank-section").style.display = "none";
+            }
+        }
+
+        // Function to add a new rank to the table
+        function addRank() {
+            const name = document.getElementById("name-input").value;
+            const rank = document.getElementById("rank-input").value;
+            const badge = document.getElementById("badge-input").value;
+
+            // Append new row to the table
+            const table = document.getElementById("roster-table").getElementsByTagName("tbody")[0];
+            const newRow = table.insertRow(-1);
+            const cell1 = newRow.insertCell(0);
+            const cell2 = newRow.insertCell(1);
+            const cell3 = newRow.insertCell(2);
+            cell1.innerHTML = name;
+            cell2.innerHTML = rank;
+            cell3.innerHTML = badge;
+
+            // Clear input fields
+            document.getElementById("name-input").value = "";
+            document.getElementById("rank-input").value = "";
+            document.getElementById("badge-input").value = "";
+        }
+
+        // Call authenticate function when the page loads
+        authenticate();
+    </script>
 
 </body>
+
 </html>
