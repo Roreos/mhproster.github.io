@@ -114,6 +114,8 @@
                 <input type="password" id="passwordInput" placeholder="Password"><br><br>
                 <button onclick="authenticate()">Submit</button>
                 <button onclick="closeLoginOverlay()">Cancel</button>
+                <input type="password" id="passwordInput" placeholder="Enter Password">
+                <button onclick="hashPassword()">Hash Password</button>
             </div>
         </div>
 
@@ -139,10 +141,13 @@
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bcryptjs/2.4.3/bcrypt.js"></script>
     <script>
-        // Define your authentication password
-        const password = "your_password";
+        // Function to initialize bcrypt library
+        var bcrypt = dcodeIO.bcrypt;
 
+        // Define your authentication password
+        const password = process.env.ADMIN_PASSWORD;
         // Function to authenticate user
         function openLoginOverlay() {
             document.getElementById("loginOverlay").style.display = "flex"; // Display the overlay
@@ -168,6 +173,27 @@
             }
         }
 
+        function hashPassword() {
+            var password = document.getElementById('passwordInput').value;
+            bcrypt.hash(password, 10, function (err, hash) {
+                if (err) {
+                    console.error('Error hashing password:', err);
+                } else {
+                    console.log('Hashed Password:', hash);
+                    // Send the hashed password to the server for storage
+                    sendToServer(hash);
+                }
+            });
+        }
+
+        function sendToServer(hash) {
+            // Send the hashed password to the server using AJAX
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', 'http://localhost:8080/savePassword', true); // Change the URL to your server endpoint
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.send(JSON.stringify({ hashedPassword: hash }));
+        }
+
         // Function to add a new rank to the table
         function addRank() {
             const name = document.getElementById("name-input").value;
@@ -189,9 +215,6 @@
             document.getElementById("rank-input").value = "";
             document.getElementById("badge-input").value = "";
         }
-
-        // Call authenticate function when the page loads
-        authenticate();
     </script>
 
 </body>
