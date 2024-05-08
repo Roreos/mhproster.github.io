@@ -1,222 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Montana Highway Patrol Roster</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        th,
-        td {
-            padding: 10px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-
-        th {
-            background-color: #f2f2f2;
-        }
-
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-
-        tr:hover {
-            background-color: #f2f2f2;
-        }
-
-        #add-rank-section {
-            display: none;
-            margin-top: 20px;
-            border: 1px solid #ccc;
-            padding: 20px;
-            background-color: #fff;
-        }
-
-        input[type="text"] {
-            width: calc(100% - 20px);
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-
-        button {
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #45a049;
-        }
-
-        .overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .overlay-content {
-            background-color: white;
-            padding: 20px;
-            border-radius: 5px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Montana Highway Patrol Roster</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f9fa;
+      padding: 20px;
+    }
+    .roster-table {
+      margin-top: 20px;
+    }
+    .roster-table th, .roster-table td {
+      vertical-align: middle;
+    }
+  </style>
 </head>
-
 <body>
-
-    <div class="container">
-        <h1>Montana Highway Patrol Roster</h1>
-
-        <!-- Login Button -->
-        <button onclick="openLoginOverlay()">Login</button>
-
-        <!-- Overlay for Login -->
-        <div id="loginOverlay" class="overlay">
-            <div class="overlay-content">
-                <h2>Login</h2>
-                <input type="password" id="passwordInput" placeholder="Password"><br><br>
-                <button onclick="authenticate()">Submit</button>
-                <button onclick="closeLoginOverlay()">Cancel</button>
-                <input type="password" id="passwordInput" placeholder="Enter Password">
-                <button onclick="hashPassword()">Hash Password</button>
-            </div>
+  <div class="container">
+    <h1 class="text-center">Montana Highway Patrol</h1>
+    
+    <!-- Form to add a new officer -->
+    <div class="mb-3">
+      <label for="rankInput">Add New Officer:</label>
+      <div class="row">
+        <div class="col">
+          <input type="text" class="form-control" id="nameInput" placeholder="Enter name">
         </div>
-
-        <table id="roster-table">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Rank</th>
-                    <th>Badge Number</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Table rows will be dynamically added here -->
-            </tbody>
-        </table>
-
-        <div id="add-rank-section" style="display: none;">
-            <h2>Add Rank</h2>
-            <input type="text" id="name-input" placeholder="Name"><br><br>
-            <input type="text" id="rank-input" placeholder="Rank"><br><br>
-            <input type="text" id="badge-input" placeholder="Badge Number"><br><br>
-            <button onclick="addRank()">Add Rank</button>
+        <div class="col">
+          <input type="text" class="form-control" id="rankInput" placeholder="Enter rank">
         </div>
+        <div class="col">
+          <input type="text" class="form-control" id="badgeInput" placeholder="Enter badge number">
+        </div>
+        <div class="col-auto">
+          <button onclick="addOfficer()" class="btn btn-primary">Add Officer</button>
+        </div>
+      </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bcryptjs/2.4.3/bcrypt.js"></script>
-    <script>
-        // Function to initialize bcrypt library
-        var bcrypt = dcodeIO.bcrypt;
+    <!-- Roster Table -->
+    <table class="table table-striped roster-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Rank</th>
+          <th>Badge Number</th>
+        </tr>
+      </thead>
+      <tbody id="rosterBody">
+        <!-- Officer rows will be added dynamically here -->
+      </tbody>
+    </table>
+  </div>
 
-        // Define your authentication password
-        const password = process.env.ADMIN_PASSWORD;
-        // Function to authenticate user
-        function openLoginOverlay() {
-            document.getElementById("loginOverlay").style.display = "flex"; // Display the overlay
-        }
+  <script>
+    // Load officers from localStorage when the page loads
+    window.onload = function() {
+      var savedOfficers = JSON.parse(localStorage.getItem('officers')) || [];
+      savedOfficers.forEach(function(officer) {
+        addRowToRoster(officer.name, officer.rank, officer.badgeNumber);
+      });
+    };
 
-        // Function to close login overlay
-        function closeLoginOverlay() {
-            document.getElementById("loginOverlay").style.display = "none"; // Hide the overlay
-        }
+    // Function to add a new officer to the roster
+    function addOfficer() {
+      var nameInput = document.getElementById("nameInput").value;
+      var rankInput = document.getElementById("rankInput").value;
+      var badgeInput = document.getElementById("badgeInput").value;
+      if (nameInput.trim() !== "" && rankInput.trim() !== "" && badgeInput.trim() !== "") {
+        addRowToRoster(nameInput, rankInput, badgeInput);
+        saveOfficer(nameInput, rankInput, badgeInput);
+        document.getElementById("nameInput").value = ""; // Clear name input field after adding
+        document.getElementById("rankInput").value = ""; // Clear rank input field after adding
+        document.getElementById("badgeInput").value = ""; // Clear badge number input field after adding
+      } else {
+        alert("Please fill out all fields.");
+      }
+    }
 
-        // Your existing authenticate function
-        function authenticate() {
-            const password = "your_password"; // Your authentication password
-            const enteredPassword = document.getElementById("passwordInput").value;
-            if (enteredPassword === password) {
-                // Authentication successful, do something
-                console.log("Authentication successful");
-                // Close the login overlay
-                closeLoginOverlay();
-            } else {
-                // Authentication failed, display an error message or take appropriate action
-                console.log("Authentication failed");
-            }
-        }
+    // Function to add a row to the roster table
+    function addRowToRoster(name, rank, badgeNumber) {
+      var tableBody = document.getElementById("rosterBody");
+      var newRow = document.createElement("tr");
+      newRow.innerHTML = "<td>" + name + "</td><td>" + rank + "</td><td>" + badgeNumber + "</td>";
+      tableBody.appendChild(newRow);
+    }
 
-        function hashPassword() {
-            var password = document.getElementById('passwordInput').value;
-            bcrypt.hash(password, 10, function (err, hash) {
-                if (err) {
-                    console.error('Error hashing password:', err);
-                } else {
-                    console.log('Hashed Password:', hash);
-                    // Send the hashed password to the server for storage
-                    sendToServer(hash);
-                }
-            });
-        }
-
-        function sendToServer(hash) {
-            // Send the hashed password to the server using AJAX
-            var xhr = new XMLHttpRequest();
-            xhr.open('POST', 'http://localhost:8080/savePassword', true); // Change the URL to your server endpoint
-            xhr.setRequestHeader('Content-Type', 'application/json');
-            xhr.send(JSON.stringify({ hashedPassword: hash }));
-        }
-
-        // Function to add a new rank to the table
-        function addRank() {
-            const name = document.getElementById("name-input").value;
-            const rank = document.getElementById("rank-input").value;
-            const badge = document.getElementById("badge-input").value;
-
-            // Append new row to the table
-            const table = document.getElementById("roster-table").getElementsByTagName("tbody")[0];
-            const newRow = table.insertRow(-1);
-            const cell1 = newRow.insertCell(0);
-            const cell2 = newRow.insertCell(1);
-            const cell3 = newRow.insertCell(2);
-            cell1.innerHTML = name;
-            cell2.innerHTML = rank;
-            cell3.innerHTML = badge;
-
-            // Clear input fields
-            document.getElementById("name-input").value = "";
-            document.getElementById("rank-input").value = "";
-            document.getElementById("badge-input").value = "";
-        }
-    </script>
-
+    // Function to save officer details in localStorage
+    function saveOfficer(name, rank, badgeNumber) {
+      var savedOfficers = JSON.parse(localStorage.getItem('officers')) || [];
+      savedOfficers.push({ name: name, rank: rank, badgeNumber: badgeNumber });
+      localStorage.setItem('officers', JSON.stringify(savedOfficers));
+    }
+  </script>
 </body>
-
 </html>
