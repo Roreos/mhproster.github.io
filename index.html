@@ -77,6 +77,25 @@
         button:hover {
             background-color: #45a049;
         }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .overlay-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+        }
     </style>
 </head>
 
@@ -84,6 +103,19 @@
 
     <div class="container">
         <h1>Montana Highway Patrol Roster</h1>
+
+        <!-- Login Button -->
+        <button onclick="openLoginOverlay()">Login</button>
+
+        <!-- Overlay for Login -->
+        <div id="loginOverlay" class="overlay">
+            <div class="overlay-content">
+                <h2>Login</h2>
+                <input type="password" id="passwordInput" placeholder="Password"><br><br>
+                <button onclick="authenticate()">Submit</button>
+                <button onclick="closeLoginOverlay()">Cancel</button>
+            </div>
+        </div>
 
         <table id="roster-table">
             <thead>
@@ -112,14 +144,27 @@
         const password = "your_password";
 
         // Function to authenticate user
+        function openLoginOverlay() {
+            document.getElementById("loginOverlay").style.display = "flex"; // Display the overlay
+        }
+
+        // Function to close login overlay
+        function closeLoginOverlay() {
+            document.getElementById("loginOverlay").style.display = "none"; // Hide the overlay
+        }
+
+        // Your existing authenticate function
         function authenticate() {
-            const authenticated = prompt("Enter password to add ranks:") === password;
-            if (authenticated) {
-                // Show the add rank section
-                document.getElementById("add-rank-section").style.display = "block";
+            const password = "your_password"; // Your authentication password
+            const enteredPassword = document.getElementById("passwordInput").value;
+            if (enteredPassword === password) {
+                // Authentication successful, do something
+                console.log("Authentication successful");
+                // Close the login overlay
+                closeLoginOverlay();
             } else {
-                // Hide the add rank section
-                document.getElementById("add-rank-section").style.display = "none";
+                // Authentication failed, display an error message or take appropriate action
+                console.log("Authentication failed");
             }
         }
 
